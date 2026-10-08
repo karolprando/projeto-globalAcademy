@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket = "BKT-TFState-GA-Karol"
+    bucket    = "BKT-TFState-GA-Karol"
     namespace = "grtmpjwnaeru"
-    key    = "tfstate/terraform.tfstate"
-    region = "sa-saopaulo-1"
+    key       = "tfstate/terraform.tfstate"
+    region    = "sa-saopaulo-1"
 
     endpoints = {
       s3 = "https://grtmpjwnaeru.compat.objectstorage.sa-saopaulo-1.oraclecloud.com"
