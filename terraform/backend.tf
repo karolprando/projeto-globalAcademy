@@ -1,7 +1,6 @@
 terraform {
   backend "s3" {
     bucket    = "BKT-TFState-GA-Karol"
-    namespace = "grtmpjwnaeru"
     key       = "tfstate/terraform.tfstate"
     region    = "sa-saopaulo-1"
 
