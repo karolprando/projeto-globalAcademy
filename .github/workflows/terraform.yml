@@ -34,7 +34,7 @@ jobs:
       TF_VAR_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
       TF_VAR_user_ocid: ${{ secrets.OCI_USER_OCID }}
       TF_VAR_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
-      TF_VAR_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
+      TF_VAR_private_key_path: ${{ runner.temp }}/oci_api_key.pem
       TF_VAR_region: ${{ secrets.OCI_REGION }}
       TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
 
@@ -53,6 +53,9 @@ jobs:
         run: |
           printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
           chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+
+      - name: Check key
+        run: head -1 "$RUNNER_TEMP/oci_api_key.pem"; wc -l "$RUNNER_TEMP/oci_api_key.pem"    
 
       - name: Terraform Init
         run: terraform init
@@ -84,11 +87,10 @@ jobs:
         working-directory: terraform
 
     env:
-      OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
       TF_VAR_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
       TF_VAR_user_ocid: ${{ secrets.OCI_USER_OCID }}
       TF_VAR_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
-      TF_VAR_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
+      TF_VAR_private_key_path: ${{ runner.temp }}/oci_api_key.pem
       TF_VAR_region: ${{ secrets.OCI_REGION }}
       TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
 
