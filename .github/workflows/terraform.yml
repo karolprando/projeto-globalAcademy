@@ -12,6 +12,12 @@ on:
 permissions:
   contents: read
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+
 jobs:
   terraform:
     name: Terraform Plan
@@ -28,8 +34,6 @@ jobs:
       TF_VAR_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
       TF_VAR_region: ${{ secrets.OCI_REGION }}
       TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
     steps:
