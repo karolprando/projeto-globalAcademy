@@ -49,8 +49,15 @@ jobs:
       - name: Terraform Format
         run: terraform fmt -check -recursive
 
+      - name: Configure OCI private key
+        run: |
+          printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
+          chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+
       - name: Terraform Init
         run: terraform init
+        env:
+          OCI_PRIVATE_KEY_PATH: ${{ runner.temp }}/oci_api_key.pem
 
       - name: Terraform Validate
         run: terraform validate
@@ -91,8 +98,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Configure OCI private key
+        run: |
+          printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
+          chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+
       - name: Terraform Init
         run: terraform init
+        env:
+          OCI_PRIVATE_KEY_PATH: ${{ runner.temp }}/oci_api_key.pem
 
       - name: Download Terraform Plan
         uses: actions/download-artifact@v4
