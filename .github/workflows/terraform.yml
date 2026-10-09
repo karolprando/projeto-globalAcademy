@@ -18,6 +18,7 @@ env:
   OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
   OCI_REGION: ${{ secrets.OCI_REGION }}
 
+
 jobs:
   terraform:
     name: Terraform Plan
