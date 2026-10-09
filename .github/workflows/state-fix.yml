@@ -1,0 +1,57 @@
+name: Corrigir provider no state (executar uma vez)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+  OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+  OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+  OCI_REGION: ${{ secrets.OCI_REGION }}
+
+jobs:
+  fix:
+    name: Replace provider
+    runs-on: ubuntu-latest
+
+    environment:
+      name: PROD
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure OCI private key
+        env:
+          OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
+        run: |
+          printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
+          chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="tenancy_ocid=$OCI_TENANCY_OCID" \
+            -backend-config="user_ocid=$OCI_USER_OCID" \
+            -backend-config="fingerprint=$OCI_FINGERPRINT" \
+            -backend-config="region=$OCI_REGION" \
+            -backend-config="private_key_path=$RUNNER_TEMP/oci_api_key.pem"
+
+      - name: Providers no state (antes)
+        run: terraform state pull | grep -o 'provider\[[^]]*\]' | sort | uniq -c
+
+      - name: Replace provider
+        run: terraform state replace-provider -auto-approve registry.terraform.io/hashicorp/oci registry.terraform.io/oracle/oci
+
+      - name: Providers no state (depois)
+        run: terraform state pull | grep -o 'provider\[[^]]*\]' | sort | uniq -c
