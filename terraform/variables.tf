@@ -49,23 +49,17 @@ variable "ssh_public_key" {
 variable "shape" {
   description = "Shape das instancias Compute"
   type        = string
-  default     = "VM.Standard.A1.Flex"
-}
-
-variable "ocpus" {
-  description = "Quantidade de OCPUs das instancias"
-  type        = number
-  default     = 1
-}
-
-variable "memory_gb" {
-  description = "Quantidade de memoria em GB das instancias"
-  type        = number
-  default     = 6
+  default     = "VM.Standard.A4.Flex"
 }
 
 variable "ad_index" {
   description = "Indice do Availability Domain utilizado pelas instancias"
   type        = number
   default     = 0
+}
+
+variable "bastion_client_cidrs" {
+  description = "CIDRs autorizados a abrir sessoes no OCI Bastion (ideal: seu IP publico /32)"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
