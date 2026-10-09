@@ -5,7 +5,7 @@ data "oci_identity_availability_domains" "ads" {
 data "oci_core_images" "oracle_linux" {
   compartment_id           = var.compartment_ocid
   operating_system         = "Oracle Linux"
-  operating_system_version = "9"
+  operating_system_version = "10"
   shape                    = var.shape
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"

@@ -49,7 +49,7 @@ variable "ssh_public_key" {
 variable "shape" {
   description = "Shape das instancias Compute"
   type        = string
-  default     = "VM.Standard.A4.Flex"
+  default     = "VM.Standard.A2.Flex"
 }
 
 variable "ad_index" {
