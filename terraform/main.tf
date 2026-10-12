@@ -23,7 +23,7 @@ module "compute" {
       subnet_id      = module.networking.subnet_app_id
       nsg_id         = module.networking.nsg_app_01_id
       ocpus          = 2
-      memory_gb      = 2
+      memory_gb      = 4
       boot_volume_gb = 50
       user_data      = local.app_user_data
     }
@@ -32,7 +32,7 @@ module "compute" {
       subnet_id      = module.networking.subnet_app_id
       nsg_id         = module.networking.nsg_app_02_id
       ocpus          = 2
-      memory_gb      = 2
+      memory_gb      = 4
       boot_volume_gb = 50
       user_data      = local.app_user_data
     }
