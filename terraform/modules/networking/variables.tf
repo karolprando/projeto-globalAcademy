@@ -8,8 +8,3 @@ variable "db_port" {
   type        = number
   default     = 3306
 }
-
-variable "bastion_client_cidrs" {
-  description = "CIDRs autorizados a abrir sessoes no OCI Bastion"
-  type        = list(string)
-}

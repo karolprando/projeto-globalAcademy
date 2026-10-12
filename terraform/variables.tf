@@ -58,8 +58,3 @@ variable "ad_index" {
   default     = 0
 }
 
-variable "bastion_client_cidrs" {
-  description = "CIDRs autorizados a abrir sessoes no OCI Bastion (ideal: seu IP publico /32)"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}

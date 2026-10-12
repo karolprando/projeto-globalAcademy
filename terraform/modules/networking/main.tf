@@ -73,6 +73,10 @@ resource "oci_core_security_list" "sl_dmz_public" {
   }
 }
 
+#====================
+# SUB-NETS VCN-DMZ  |
+#====================
+
 resource "oci_core_subnet" "subnet_dmz_public" {
   compartment_id             = var.compartment_ocid
   vcn_id                     = oci_core_vcn.vcn_dmz.id
@@ -83,6 +87,12 @@ resource "oci_core_subnet" "subnet_dmz_public" {
   security_list_ids          = [oci_core_security_list.sl_dmz_public.id]
   prohibit_public_ip_on_vnic = false
 }
+
+#=======================
+# FIM SUB-NETS VCN-DMZ |
+#=======================
+
+
 
 # ============================================================
 # VCN-APP
@@ -162,6 +172,21 @@ resource "oci_core_subnet" "subnet_iris" {
   prohibit_public_ip_on_vnic = true
 }
 
+# ============================================================
+# SUBNET PRIVADA DO JUMPSERVER
+# ============================================================
+
+resource "oci_core_subnet" "subnet_jumpserver" {
+  compartment_id             = var.compartment_ocid
+  vcn_id                     = oci_core_vcn.vcn_app.id
+  display_name               = "PRIVATE-SUBNET-JUMPSERVER"
+  cidr_block                 = "10.20.3.0/24"
+  dns_label                  = "jumpserver"
+  route_table_id             = oci_core_route_table.rt_app_private.id
+  security_list_ids          = [oci_core_security_list.sl_app_private.id]
+  prohibit_public_ip_on_vnic = true
+}
+
 moved {
   from = oci_core_subnet.subnet_app_01
   to   = oci_core_subnet.subnet_app
@@ -212,6 +237,72 @@ resource "oci_core_network_security_group" "nsg_irisdb_01" {
   display_name   = "NSG-SRV-IRISDB-01"
 }
 
+# Nginx Proxy Manager na VCN-DMZ
+resource "oci_core_network_security_group" "nsg_npm" {
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_vcn.vcn_dmz.id
+  display_name   = "NSG-SRV-NPM-01"
+}
+
+# JumpServer na VCN-APP
+resource "oci_core_network_security_group" "nsg_jumpserver" {
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_vcn.vcn_app.id
+  display_name   = "NSG-SRV-JUMPSERVER-01"
+}
+
+# Internet -> NPM: HTTP
+resource "oci_core_network_security_group_security_rule" "npm_http_from_internet" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  description               = "HTTP publico para redirecionamento e validacao de certificados"
+
+  tcp_options {
+    destination_port_range {
+      min = 80
+      max = 80
+    }
+  }
+}
+
+# Internet -> NPM: HTTPS
+resource "oci_core_network_security_group_security_rule" "npm_https_from_internet" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  description               = "HTTPS publico para o NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 443
+      max = 443
+    }
+  }
+}
+
+# NPM (DMZ) -> interface web do JumpServer (APP)
+resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_npm" {
+  network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
+  source_type               = "CIDR_BLOCK"
+  description               = "Interface web do JumpServer acessivel pelo NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 80
+      max = 80
+    }
+  }
+}
+
+
 locals {
   app_nsg_ids = {
     app_01 = oci_core_network_security_group.nsg_app_01.id
@@ -254,6 +345,7 @@ resource "oci_core_network_security_group_security_rule" "app_http_from_lb" {
     }
   }
 }
+
 
 # Zabbix (IRISCORE) -> agentes nas APPs
 resource "oci_core_network_security_group_security_rule" "app_zabbix_agent_from_iriscore" {
@@ -310,22 +402,8 @@ resource "oci_core_network_security_group_security_rule" "irisdb_from_iriscore" 
   }
 }
 
-# ============================================================
-# OCI Bastion
-# ============================================================
-
-resource "oci_bastion_bastion" "bastion" {
-  compartment_id               = var.compartment_ocid
-  bastion_type                 = "STANDARD"
-  name                         = "BASTION-APP"
-  target_subnet_id             = oci_core_subnet.subnet_iris.id
-  client_cidr_block_allow_list = var.bastion_client_cidrs
-  max_session_ttl_in_seconds   = 10800
-}
-
+# NSGs das VMs que podem ser administradas pelo JumpServer
 locals {
-  bastion_source = "${oci_bastion_bastion.bastion.private_endpoint_ip_address}/32"
-
   vm_nsg_ids = {
     app_01      = oci_core_network_security_group.nsg_app_01.id
     app_02      = oci_core_network_security_group.nsg_app_02.id
@@ -335,16 +413,16 @@ locals {
   }
 }
 
-# Bastion -> SSH em todas as VMs
-resource "oci_core_network_security_group_security_rule" "vm_ssh_from_bastion" {
+# JumpServer -> SSH das VMs privadas
+resource "oci_core_network_security_group_security_rule" "vm_ssh_from_jumpserver" {
   for_each = local.vm_nsg_ids
 
   network_security_group_id = each.value
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = local.bastion_source
-  source_type               = "CIDR_BLOCK"
-  description               = "SSH vindo do OCI Bastion"
+  source                    = oci_core_network_security_group.nsg_jumpserver.id
+  source_type               = "NETWORK_SECURITY_GROUP"
+  description               = "SSH administrativo vindo do JumpServer"
 
   tcp_options {
     destination_port_range {
@@ -354,14 +432,14 @@ resource "oci_core_network_security_group_security_rule" "vm_ssh_from_bastion" {
   }
 }
 
-# Bastion -> UI do Grafana (port forwarding)
-resource "oci_core_network_security_group_security_rule" "iris_grafana_from_bastion" {
+# JumpServer -> Grafana
+resource "oci_core_network_security_group_security_rule" "grafana_web_from_jumpserver" {
   network_security_group_id = oci_core_network_security_group.nsg_iris_01.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = local.bastion_source
-  source_type               = "CIDR_BLOCK"
-  description               = "UI do Grafana vinda do OCI Bastion"
+  source                    = oci_core_network_security_group.nsg_jumpserver.id
+  source_type               = "NETWORK_SECURITY_GROUP"
+  description               = "Interface do Grafana acessivel pelo JumpServer"
 
   tcp_options {
     destination_port_range {
@@ -371,21 +449,21 @@ resource "oci_core_network_security_group_security_rule" "iris_grafana_from_bast
   }
 }
 
-# Bastion -> UI do Zabbix (port forwarding)
-resource "oci_core_network_security_group_security_rule" "iriscore_web_from_bastion" {
+# JumpServer -> interface web do Zabbix
+resource "oci_core_network_security_group_security_rule" "zabbix_web_from_jumpserver" {
   for_each = toset(["80", "443"])
 
   network_security_group_id = oci_core_network_security_group.nsg_iriscore_01.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = local.bastion_source
-  source_type               = "CIDR_BLOCK"
-  description               = "UI do Zabbix vinda do OCI Bastion"
+  source                    = oci_core_network_security_group.nsg_jumpserver.id
+  source_type               = "NETWORK_SECURITY_GROUP"
+  description               = "Interface web do Zabbix acessivel pelo JumpServer"
 
   tcp_options {
     destination_port_range {
-      min = each.value
-      max = each.value
+      min = tonumber(each.value)
+      max = tonumber(each.value)
     }
   }
 }

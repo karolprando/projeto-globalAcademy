@@ -5,8 +5,7 @@ locals {
 module "networking" {
   source = "./modules/networking"
 
-  compartment_ocid     = var.compartment_ocid
-  bastion_client_cidrs = var.bastion_client_cidrs
+  compartment_ocid = var.compartment_ocid
 }
 
 module "compute" {
@@ -19,6 +18,28 @@ module "compute" {
   ssh_public_key   = var.ssh_public_key
 
   instances = {
+
+    # Nginx Proxy Manager na subnet publica da VCN-DMZ
+    "SRV-NPM-01" = {
+      subnet_id        = module.networking.subnet_dmz_public_id
+      nsg_id           = module.networking.nsg_npm_id
+      ocpus            = 1
+      memory_gb        = 2
+      boot_volume_gb   = 50
+      assign_public_ip = true
+    }
+
+    # JumpServer na subnet privada da VCN-APP
+    "SRV-JUMPSERVER-01" = {
+      subnet_id        = module.networking.subnet_jumpserver_id
+      nsg_id           = module.networking.nsg_jumpserver_id
+      ocpus            = 4
+      memory_gb        = 8
+      boot_volume_gb   = 100
+      assign_public_ip = false
+      shape            = "VM.Standard.E4.Flex"
+    }
+
     "SRV-APP-01" = {
       subnet_id      = module.networking.subnet_app_id
       nsg_id         = module.networking.nsg_app_01_id

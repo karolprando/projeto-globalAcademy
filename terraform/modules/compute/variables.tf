@@ -25,12 +25,15 @@ variable "ssh_public_key" {
 
 variable "instances" {
   description = "Instancias a criar, indexadas pelo nome"
+
   type = map(object({
-    subnet_id      = string
-    nsg_id         = string
-    ocpus          = number
-    memory_gb      = number
-    boot_volume_gb = number
-    user_data      = optional(string)
+    subnet_id        = string
+    nsg_id           = string
+    ocpus            = number
+    memory_gb        = number
+    boot_volume_gb   = number
+    user_data        = optional(string)
+    assign_public_ip = optional(bool, false)
+    shape            = optional(string)
   }))
 }

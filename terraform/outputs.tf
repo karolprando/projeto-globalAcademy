@@ -18,7 +18,7 @@ output "private_ips" {
   value       = module.compute.private_ips
 }
 
-output "bastion_id" {
-  description = "OCID do OCI Bastion (usado para criar sessoes)"
-  value       = module.networking.bastion_id
+output "npm_public_ip" {
+  description = "IP publico da instancia Nginx Proxy Manager"
+  value       = module.compute.public_ips["SRV-NPM-01"]
 }

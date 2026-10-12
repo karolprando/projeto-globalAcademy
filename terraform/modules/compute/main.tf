@@ -17,13 +17,11 @@ resource "oci_core_instance" "vm" {
   compartment_id      = var.compartment_ocid
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[var.ad_index].name
   display_name        = each.key
-  shape               = var.shape
-
+  shape               = each.value.shape != null ? each.value.shape : var.shape
   shape_config {
     ocpus         = each.value.ocpus
     memory_in_gbs = each.value.memory_gb
   }
-
 
   source_details {
     source_type             = "image"
@@ -35,7 +33,7 @@ resource "oci_core_instance" "vm" {
   create_vnic_details {
     subnet_id        = each.value.subnet_id
     nsg_ids          = [each.value.nsg_id]
-    assign_public_ip = false
+    assign_public_ip = each.value.assign_public_ip
     hostname_label   = lower(each.key)
   }
 
@@ -43,13 +41,6 @@ resource "oci_core_instance" "vm" {
     var.ssh_public_key == "" ? {} : { ssh_authorized_keys = var.ssh_public_key },
     each.value.user_data == null ? {} : { user_data = base64encode(each.value.user_data) }
   )
-
-  agent_config {
-    plugins_config {
-      name          = "Bastion"
-      desired_state = "ENABLED"
-    }
-  }
 
   # Evita recriar a VM quando a Oracle publica uma imagem mais nova
   lifecycle {
