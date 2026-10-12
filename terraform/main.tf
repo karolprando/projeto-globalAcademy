@@ -37,7 +37,6 @@ module "compute" {
       memory_gb        = 8
       boot_volume_gb   = 100
       assign_public_ip = false
-      shape            = "VM.Standard.E4.Flex"
     }
 
     "SRV-APP-01" = {
