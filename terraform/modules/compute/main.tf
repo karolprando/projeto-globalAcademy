@@ -27,7 +27,7 @@ resource "oci_core_instance" "vm" {
 
   source_details {
     source_type             = "image"
-    source_id               = data.oci_core_images.oracle_linux.images[0].id
+    source_id               = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaam2qn23lnoaiqriekv7h5ggfft6vcm6jfuundhb5xaeazoaiwqf5a"
     boot_volume_size_in_gbs = each.value.boot_volume_gb
     boot_volume_vpus_per_gb = 10
   }
