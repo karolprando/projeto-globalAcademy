@@ -24,6 +24,7 @@ resource "oci_core_instance" "vm" {
     memory_in_gbs = each.value.memory_gb
   }
 
+
   source_details {
     source_type             = "image"
     source_id               = data.oci_core_images.oracle_linux.images[0].id
