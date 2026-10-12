@@ -5,7 +5,7 @@ locals {
 module "networking" {
   source = "./modules/networking"
 
-  compartment_ocid     = var.compartment_ocid
+  compartment_ocid = var.compartment_ocid
 }
 
 module "compute" {
@@ -18,7 +18,7 @@ module "compute" {
   ssh_public_key   = var.ssh_public_key
 
   instances = {
-    
+
     # Nginx Proxy Manager na subnet publica da VCN-DMZ
     "SRV-NPM-01" = {
       subnet_id        = module.networking.subnet_dmz_public_id
