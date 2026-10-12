@@ -76,7 +76,7 @@ module "compute" {
     "SRV-IRISDB-01" = {
       subnet_id      = module.networking.subnet_iris_id
       nsg_id         = module.networking.nsg_irisdb_01_id
-      ocpus          = 2
+      ocpus          = 1
       memory_gb      = 4
       boot_volume_gb = 50
     }
