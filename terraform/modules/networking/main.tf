@@ -251,6 +251,10 @@ resource "oci_core_network_security_group" "nsg_jumpserver" {
   display_name   = "NSG-SRV-JUMPSERVER-01"
 }
 
+# ============================================================
+# REGRAS 
+# ============================================================
+
 # Internet -> NPM: HTTP
 resource "oci_core_network_security_group_security_rule" "npm_http_from_internet" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
@@ -336,6 +340,25 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
     }
   }
 }
+
+# SSH JUMPSERVER -> NPM: 22 DO JUMP para o NPM
+
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_jumpserver" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "10.20.3.72/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "Liberação de SSH do Jumpserver para o NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 22
+      max = 22
+    }
+  }
+}
+
 
 # NPM (DMZ) -> interface web do JumpServer (APP)
 resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_npm" {
@@ -498,6 +521,9 @@ resource "oci_core_network_security_group_security_rule" "vm_ssh_from_jumpserver
     }
   }
 }
+
+
+
 
 # JumpServer -> Grafana
 resource "oci_core_network_security_group_security_rule" "grafana_web_from_jumpserver" {
