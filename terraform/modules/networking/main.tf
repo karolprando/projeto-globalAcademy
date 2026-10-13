@@ -353,7 +353,22 @@ resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_np
     }
   }
 }
+# NPM (DMZ) -> SSH JumpServer (APP)
+resource "oci_core_network_security_group_security_rule" "jumpserver_ssh_from_npm" {
+  network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
+  source_type               = "CIDR_BLOCK"
+  description               = "SSH do JumpServer acessivel pelo NPM"
 
+  tcp_options {
+    destination_port_range {
+      min = 22
+      max = 22
+    }
+  }
+}
 
 locals {
   app_nsg_ids = {
