@@ -285,6 +285,58 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
   }
 }
 
+# SSH (189.50.2.90/32) -> NPM: SSH para o NPM
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "189.50.2.90/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "SSH publico para o NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 22
+      max = 22
+    }
+  }
+}
+# SSH (189.50.2.210/32) -> NPM: SSH para o NPM
+
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "189.50.2.210/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "SSH publico para o NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 22
+      max = 22
+    }
+  }
+}
+
+# SSH (177.145.42.18/32) -> NPM: SSH para o NPM
+
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "177.145.42.18/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "SSH publico para o NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 22
+      max = 22
+    }
+  }
+}
+
 # NPM (DMZ) -> interface web do JumpServer (APP)
 resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_npm" {
   network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
