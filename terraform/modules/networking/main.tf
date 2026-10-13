@@ -286,7 +286,7 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
 }
 
 # SSH (189.50.2.90/32) -> NPM: SSH para o NPM
-resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-01" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -303,7 +303,7 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 }
 # SSH (189.50.2.210/32) -> NPM: SSH para o NPM
 
-resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-02" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
@@ -321,7 +321,7 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 
 # SSH (177.145.42.18/32) -> NPM: SSH para o NPM
 
-resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys" {
+resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-03" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
