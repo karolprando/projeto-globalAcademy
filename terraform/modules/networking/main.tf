@@ -342,7 +342,7 @@ resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_np
   network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
+  source                    = "10.10.1.50/32"
   source_type               = "CIDR_BLOCK"
   description               = "Interface web do JumpServer acessivel pelo NPM"
 
@@ -358,7 +358,7 @@ resource "oci_core_network_security_group_security_rule" "jumpserver_ssh_from_np
   network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
+  source                    = "10.10.1.50/32"
   source_type               = "CIDR_BLOCK"
   description               = "SSH do JumpServer acessivel pelo NPM"
 
