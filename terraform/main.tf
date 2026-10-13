@@ -33,8 +33,9 @@ module "compute" {
     "SRV-JUMPSERVER-01" = {
       subnet_id        = module.networking.subnet_jumpserver_id
       nsg_id           = module.networking.nsg_jumpserver_id
-      ocpus            = 4
-      memory_gb        = 8
+      shape            = "VM.Standard.A1.Flex"
+      ocpus            = 2
+      memory_gb        = 4
       boot_volume_gb   = 100
       assign_public_ip = false
     }
