@@ -47,7 +47,7 @@ resource "oci_core_security_list" "sl_dmz_public" {
   vcn_id         = oci_core_vcn.vcn_dmz.id
   display_name   = "SL-DMZ-PUBLIC"
 
-  egress_security_rules {         #Saída da subnet pra internet
+  egress_security_rules { #Saída da subnet pra internet
     destination = "0.0.0.0/0"
     protocol    = "all"
   }
