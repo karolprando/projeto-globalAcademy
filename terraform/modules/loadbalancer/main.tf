@@ -18,10 +18,13 @@ resource "oci_load_balancer_backend_set" "app" {
   policy           = "ROUND_ROBIN"
 
   health_checker {
-    protocol    = "HTTP"
-    port        = 80
-    url_path    = "/"
-    return_code = 200
+    protocol          = "HTTP"
+    port              = 8080
+    url_path          = "/health"
+    return_code       = 200
+    interval_ms       = 10000
+    timeout_in_millis = 3000
+    retries           = 3
   }
 }
 
@@ -31,7 +34,7 @@ resource "oci_load_balancer_backend" "app" {
   load_balancer_id = oci_load_balancer_load_balancer.lb.id
   backendset_name  = oci_load_balancer_backend_set.app.name
   ip_address       = each.value
-  port             = 80
+  port             = 8080
 }
 
 resource "oci_load_balancer_listener" "http" {
@@ -41,3 +44,5 @@ resource "oci_load_balancer_listener" "http" {
   port                     = 80
   protocol                 = "HTTP"
 }
+
+
