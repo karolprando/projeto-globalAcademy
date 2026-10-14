@@ -480,6 +480,25 @@ resource "oci_core_network_security_group_security_rule" "app_http_from_lb" {
   }
 }
 
+# Load Balancer -> APPs: aplicacao Flask na porta 8080
+resource "oci_core_network_security_group_security_rule" "app_flask_from_lb" {
+  for_each = local.app_nsg_ids
+
+  network_security_group_id = each.value
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
+  source_type               = "CIDR_BLOCK"
+  description               = "Aplicacao Flask e health check vindos do Load Balancer"
+
+  tcp_options {
+    destination_port_range {
+      min = 8080
+      max = 8080
+    }
+  }
+}
+
 # Load Balancer -> APPs: HTTPS (a origem e o CIDR da sub-rede do LB)
 resource "oci_core_network_security_group_security_rule" "app_https_from_lb" {
   for_each = local.app_nsg_ids
