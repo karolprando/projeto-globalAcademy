@@ -543,6 +543,24 @@ resource "oci_core_network_security_group_security_rule" "grafana_web_from_jumps
   }
 }
 
+
+# NPM (DMZ) -> Grafana (IRIS): HTTP
+resource "oci_core_network_security_group_security_rule" "iris_http_from_npm" {
+  network_security_group_id = oci_core_network_security_group.nsg_iris_01.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "10.10.1.50/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "Acesso a interface do Grafana pelo NPM"
+
+  tcp_options {
+    destination_port_range {
+      min = 3000
+      max = 3000
+    }
+  }
+}
+
 ## -- END -- NSG-SRV-IRIS-01 -- ##
 
 
