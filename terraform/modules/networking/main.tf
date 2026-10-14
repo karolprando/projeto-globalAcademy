@@ -413,6 +413,23 @@ resource "oci_core_network_security_group_security_rule" "lb_https_from_internet
   }
 }
 
+# Internet -> Load Balancer: HTTP
+resource "oci_core_network_security_group_security_rule" "lb_http_from_internet" {
+  network_security_group_id = oci_core_network_security_group.nsg_lb.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  description               = "HTTP da internet"
+
+  tcp_options {
+    destination_port_range {
+      min = 8080
+      max = 8080
+    }
+  }
+}
+
 ## -- END -- NSG-LB -- ##
 
 
