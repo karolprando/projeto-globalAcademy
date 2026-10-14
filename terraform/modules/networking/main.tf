@@ -297,13 +297,12 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
 
 
 # GLOBALSYS (189.50.2.90/32) -> NPM WEB
-# TEMP: Internet -> NPM: 81 (temporario, ate o redirecionamento do HTTP para HTTPS funcionar)
 # NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-01" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = "0.0.0.0/0" # 189.50.2.90/32
+  source                    = "189.50.2.90/32" # 
   source_type               = "CIDR_BLOCK"
   description               = "SSH publico para o NPM"
 
@@ -315,13 +314,12 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
   }
 }
 # GLOBALSYS (189.50.2.210/32) -> NPM WEB
-# TEMP: Internet -> NPM: 81 (temporario, ate o redirecionamento do HTTP para HTTPS funcionar)
 # NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-02" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = "0.0.0.0/0" # 189.50.2.210/32
+  source                    = "189.50.2.210/32" # 
   source_type               = "CIDR_BLOCK"
   description               = "SSH publico para o NPM"
 
@@ -334,13 +332,12 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 }
 
 # GLOBALSYS (177.145.42.18/32) -> NPM WEB
-# TEMP: Internet -> NPM: 81 (temporario, ate o redirecionamento do HTTP para HTTPS funcionar)
 # NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-03" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = "0.0.0.0/0" # 177.145.42.18/32
+  source                    = "177.145.42.18/32" # 
   source_type               = "CIDR_BLOCK"
   description               = "SSH publico para o NPM"
 
