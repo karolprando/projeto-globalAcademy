@@ -256,6 +256,7 @@ resource "oci_core_network_security_group" "nsg_jumpserver" {
 # ============================================================
 
 # Internet -> NPM: HTTP
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_http_from_internet" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -272,7 +273,10 @@ resource "oci_core_network_security_group_security_rule" "npm_http_from_internet
   }
 }
 
+
+
 # Internet -> NPM: HTTPS
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_https_from_internet" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -289,7 +293,8 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
   }
 }
 
-# SSH (189.50.2.90/32) -> NPM: SSH para o NPM
+# GLOBALSYS (189.50.2.90/32) -> NPM WEB
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-01" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -300,13 +305,13 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 
   tcp_options {
     destination_port_range {
-      min = 22
-      max = 22
+      min = 81
+      max = 81
     }
   }
 }
-# SSH (189.50.2.210/32) -> NPM: SSH para o NPM
-
+# GLOBALSYS (189.50.2.210/32) -> NPM WEB
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-02" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -317,14 +322,14 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 
   tcp_options {
     destination_port_range {
-      min = 22
-      max = 22
+      min = 81
+      max = 81
     }
   }
 }
 
-# SSH (177.145.42.18/32) -> NPM: SSH para o NPM
-
+# GLOBALSYS (177.145.42.18/32) -> NPM WEB
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys-03" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -335,14 +340,15 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_globalsys
 
   tcp_options {
     destination_port_range {
-      min = 22
-      max = 22
+      min = 81
+      max = 81
     }
   }
 }
 
-# SSH JUMPSERVER -> NPM: 22 DO JUMP para o NPM
 
+# JUMPSERVER -> NPM: 22 DO JUMP para o NPM
+# NSG-SRV-NPM-01
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_jumpserver" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -361,6 +367,7 @@ resource "oci_core_network_security_group_security_rule" "npm_ssh_from_jumpserve
 
 
 # NPM (DMZ) -> interface web do JumpServer (APP)
+# NSG-SRV-JUMPSERVER-01
 resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_npm" {
   network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
   direction                 = "INGRESS"
@@ -377,6 +384,7 @@ resource "oci_core_network_security_group_security_rule" "jumpserver_web_from_np
   }
 }
 # NPM (DMZ) -> SSH JumpServer (APP)
+# NSG-SRV-JUMPSERVER-01
 resource "oci_core_network_security_group_security_rule" "jumpserver_ssh_from_npm" {
   network_security_group_id = oci_core_network_security_group.nsg_jumpserver.id
   direction                 = "INGRESS"
@@ -401,6 +409,7 @@ locals {
 }
 
 # Internet -> Load Balancer
+# NSG-LB
 resource "oci_core_network_security_group_security_rule" "lb_http_from_internet" {
   network_security_group_id = oci_core_network_security_group.nsg_lb.id
   direction                 = "INGRESS"
@@ -457,6 +466,7 @@ resource "oci_core_network_security_group_security_rule" "app_zabbix_agent_from_
 }
 
 # Grafana (IRIS-01) -> Zabbix API/frontend (IRISCORE)
+# NSG-SRV-IRISDB-01
 resource "oci_core_network_security_group_security_rule" "iriscore_web_from_iris" {
   for_each = toset(["80", "443"])
 
@@ -475,7 +485,8 @@ resource "oci_core_network_security_group_security_rule" "iriscore_web_from_iris
   }
 }
 
-# Zabbix (IRISCORE) -> banco (IRISDB). Nenhuma regra libera a APP para o banco.
+# Zabbix (IRISCORE) -> banco (IRISDB).
+# NSG-SRV-IRISDB-01
 resource "oci_core_network_security_group_security_rule" "irisdb_from_iriscore" {
   network_security_group_id = oci_core_network_security_group.nsg_irisdb_01.id
   direction                 = "INGRESS"
@@ -504,6 +515,7 @@ locals {
 }
 
 # JumpServer -> SSH das VMs privadas
+# NSG-SRV-JUMPSERVER-01
 resource "oci_core_network_security_group_security_rule" "vm_ssh_from_jumpserver" {
   for_each = local.vm_nsg_ids
 
@@ -543,6 +555,7 @@ resource "oci_core_network_security_group_security_rule" "grafana_web_from_jumps
 }
 
 # JumpServer -> interface web do Zabbix
+
 resource "oci_core_network_security_group_security_rule" "zabbix_web_from_jumpserver" {
   for_each = toset(["80", "443"])
 
