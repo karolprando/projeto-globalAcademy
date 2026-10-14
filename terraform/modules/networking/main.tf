@@ -596,6 +596,24 @@ resource "oci_core_network_security_group_security_rule" "iriscore_web_from_iris
   }
 }
 
+# NPM (DMZ) -> Apache do Zabbix (IRISCORE): HTTP
+resource "oci_core_network_security_group_security_rule" "iriscore_http_from_npm" {
+  network_security_group_id = oci_core_network_security_group.nsg_iriscore_01.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "10.10.1.50/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "HTTP do NPM para o frontend web do Zabbix"
+
+  tcp_options {
+    destination_port_range {
+      min = 80
+      max = 80
+    }
+  }
+}
+
+
 # JumpServer -> interface web do Zabbix
 resource "oci_core_network_security_group_security_rule" "zabbix_web_from_jumpserver" {
   for_each = toset(["80", "443"])
