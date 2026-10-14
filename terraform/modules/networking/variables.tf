@@ -6,5 +6,5 @@ variable "compartment_ocid" {
 variable "db_port" {
   description = "Porta do banco do Zabbix (3306 para MySQL, 5432 para PostgreSQL)"
   type        = number
-  default     = 3306
+  default     = 5432
 }
