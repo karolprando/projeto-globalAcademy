@@ -56,7 +56,6 @@ resource "oci_load_balancer_listener" "http" {
 }
 
 # HTTPS na porta 443
-
 resource "oci_load_balancer_listener" "https" {
   load_balancer_id         = oci_load_balancer_load_balancer.lb.id
   name                     = "HTTPS"
