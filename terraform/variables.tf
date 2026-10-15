@@ -58,3 +58,12 @@ variable "ad_index" {
   default     = 0
 }
 
+variable "origin_certificate" {
+  type      = string
+  sensitive = true
+}
+
+variable "origin_private_key" {
+  type      = string
+  sensitive = true
+}

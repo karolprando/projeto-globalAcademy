@@ -12,6 +12,15 @@ resource "oci_load_balancer_load_balancer" "lb" {
   }
 }
 
+# Certificado de origem criado no Cloudflare
+
+resource "oci_load_balancer_certificate" "origin" {
+  load_balancer_id   = oci_load_balancer_load_balancer.lb.id
+  certificate_name   = "academy-origin"
+  public_certificate = var.origin_certificate
+  private_key        = var.origin_private_key
+}
+
 resource "oci_load_balancer_backend_set" "app" {
   load_balancer_id = oci_load_balancer_load_balancer.lb.id
   name             = "BS-APP"
@@ -37,6 +46,7 @@ resource "oci_load_balancer_backend" "app" {
   port             = 8080
 }
 
+# HTTP permanece disponível na porta 80
 resource "oci_load_balancer_listener" "http" {
   load_balancer_id         = oci_load_balancer_load_balancer.lb.id
   name                     = "HTTP"
@@ -45,4 +55,18 @@ resource "oci_load_balancer_listener" "http" {
   protocol                 = "HTTP"
 }
 
+# HTTPS na porta 443
 
+resource "oci_load_balancer_listener" "https" {
+  load_balancer_id         = oci_load_balancer_load_balancer.lb.id
+  name                     = "HTTPS"
+  default_backend_set_name = oci_load_balancer_backend_set.app.name
+  port                     = 443
+  protocol                 = "HTTP"
+
+  ssl_configuration {
+    certificate_name = oci_load_balancer_certificate.origin.certificate_name
+    verify_peer_certificate = false
+    protocols = ["TLSv1.2", "TLSv1.3"]
+  }
+}

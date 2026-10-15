@@ -17,3 +17,15 @@ variable "backends" {
   description = "Backends do Load Balancer: nome => IP privado"
   type        = map(string)
 }
+
+variable "origin_certificate" {
+  description = "Certificado público Origin Certificate do Cloudflare em formato PEM"
+  type        = string
+  sensitive   = true
+}
+
+variable "origin_private_key" {
+  description = "Chave privada correspondente ao Origin Certificate do Cloudflare"
+  type        = string
+  sensitive   = true
+}
