@@ -95,7 +95,7 @@ module "loadbalancer" {
     "SRV-APP-01" = module.compute.private_ips["SRV-APP-01"]
     "SRV-APP-02" = module.compute.private_ips["SRV-APP-02"]
   }
-  
+
   origin_certificate = var.origin_certificate
   origin_private_key = var.origin_private_key
 }

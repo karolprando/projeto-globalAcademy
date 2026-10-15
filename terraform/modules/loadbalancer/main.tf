@@ -65,8 +65,8 @@ resource "oci_load_balancer_listener" "https" {
   protocol                 = "HTTP"
 
   ssl_configuration {
-    certificate_name = oci_load_balancer_certificate.origin.certificate_name
+    certificate_name        = oci_load_balancer_certificate.origin.certificate_name
     verify_peer_certificate = false
-    protocols = ["TLSv1.2", "TLSv1.3"]
+    protocols               = ["TLSv1.2", "TLSv1.3"]
   }
 }
