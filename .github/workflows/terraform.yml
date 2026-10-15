@@ -34,6 +34,8 @@ jobs:
       TF_VAR_region: ${{ secrets.OCI_REGION }}
       TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
       TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_origin_certificate: ${{ secrets.TF_VAR_origin_certificate }}
+      TF_VAR_origin_private_key: ${{ secrets.TF_VAR_origin_private_key }}
 
     steps:
       - name: Checkout
@@ -77,7 +79,7 @@ jobs:
   apply:
     name: Terraform Apply
     needs: terraform
-    if: false #github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     environment:
@@ -94,6 +96,8 @@ jobs:
       TF_VAR_region: ${{ secrets.OCI_REGION }}
       TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
       TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_origin_certificate: ${{ secrets.TF_VAR_origin_certificate }}
+      TF_VAR_origin_private_key: ${{ secrets.TF_VAR_origin_private_key }}
 
     steps:
       - name: Checkout
