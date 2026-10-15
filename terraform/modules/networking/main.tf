@@ -302,6 +302,26 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
 }
 # -- Fim da regra Globalsys -> NPM: HTTPS --
 
+
+#TEMP - IP CASA -> NPM WEB
+
+# GLOBALSYS (189.50.2.90/32) -> NPM (Via IP publico)
+resource "oci_core_network_security_group_security_rule" "npm_web_from_globalsys-01" {
+  network_security_group_id = oci_core_network_security_group.nsg_npm.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "186.233.129.51/32"
+  source_type               = "CIDR_BLOCK"
+  description               = "Liberação de NPM web apenas para rede de casa"
+
+  tcp_options {
+    destination_port_range {
+      min = 81
+      max = 81
+    }
+  }
+}
+
 # GLOBALSYS (189.50.2.90/32) -> NPM (Via IP publico)
 resource "oci_core_network_security_group_security_rule" "npm_web_from_globalsys-01" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
