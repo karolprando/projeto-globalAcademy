@@ -77,7 +77,7 @@ jobs:
   apply:
     name: Terraform Apply
     needs: terraform
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: false #github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     environment:

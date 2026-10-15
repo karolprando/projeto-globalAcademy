@@ -1,4 +1,5 @@
-name: Corrigir provider no state (executar uma vez)
+
+name: Terraform - Liberar Lock OCI
 
 on:
   workflow_dispatch:
@@ -13,12 +14,9 @@ env:
   OCI_REGION: ${{ secrets.OCI_REGION }}
 
 jobs:
-  fix:
-    name: Replace provider
+  unlock:
+    name: Liberar lock abandonado
     runs-on: ubuntu-latest
-
-    environment:
-      name: PROD
 
     defaults:
       run:
@@ -31,27 +29,22 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Configure OCI private key
+      - name: Configurar chave privada OCI
         env:
           OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
         run: |
           printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
           chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+          echo "TF_VAR_private_key_path=$RUNNER_TEMP/oci_api_key.pem" >> "$GITHUB_ENV"
 
-      - name: Terraform Init
+      - name: Inicializar backend remoto
         run: |
-          terraform init \
+          terraform init -input=false \
             -backend-config="tenancy_ocid=$OCI_TENANCY_OCID" \
             -backend-config="user_ocid=$OCI_USER_OCID" \
             -backend-config="fingerprint=$OCI_FINGERPRINT" \
             -backend-config="region=$OCI_REGION" \
             -backend-config="private_key_path=$RUNNER_TEMP/oci_api_key.pem"
 
-      - name: Providers no state (antes)
-        run: terraform state pull | grep -o 'provider\[[^]]*\]' | sort | uniq -c
-
-      - name: Replace provider
-        run: terraform state replace-provider -auto-approve registry.terraform.io/hashicorp/oci registry.terraform.io/oracle/oci
-
-      - name: Providers no state (depois)
-        run: terraform state pull | grep -o 'provider\[[^]]*\]' | sort | uniq -c
+      - name: Liberar lock
+        run: terraform force-unlock -force 63683567-129e-b2f4-bd18-1a5cd25dc30f
