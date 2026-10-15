@@ -306,7 +306,7 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
 #TEMP - IP CASA -> NPM WEB
 
 # GLOBALSYS (189.50.2.90/32) -> NPM (Via IP publico)
-resource "oci_core_network_security_group_security_rule" "npm_web_from_globalsys-01" {
+resource "oci_core_network_security_group_security_rule" "npm_web_from_casa" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
   protocol                  = "6"
