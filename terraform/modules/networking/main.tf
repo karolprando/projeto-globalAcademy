@@ -300,10 +300,8 @@ resource "oci_core_network_security_group_security_rule" "npm_https_from_interne
     }
   }
 }
-# -- Fim da regra Globalsys -> NPM: HTTPS --
 
-
-#TEMP - IP CASA -> NPM WEB
+# --------/ REGRAS GLOBALSYS -> NPM WEB /--------
 
 # GLOBALSYS (189.50.2.90/32) -> NPM (Via IP publico)
 resource "oci_core_network_security_group_security_rule" "npm_web_from_casa" {
@@ -372,10 +370,10 @@ resource "oci_core_network_security_group_security_rule" "npm_web_from_globalsys
     }
   }
 }
+# --------/ FIM DAS REGRAS GLOBALSYS > NPM WEB /--------
 
 
-
-# JUMPSERVER -> NPM: 22 DO JUMP para o NPM
+# JUMPSERVER -> NPM via SSH (22)
 resource "oci_core_network_security_group_security_rule" "npm_ssh_from_jumpserver" {
   network_security_group_id = oci_core_network_security_group.nsg_npm.id
   direction                 = "INGRESS"
@@ -482,35 +480,16 @@ resource "oci_core_network_security_group_security_rule" "jumpserver_ssh_from_np
 # REGRAS - NSG-SRV-APP-01 / NSG-SRV-APP-02 (for_each local.app_nsg_ids)
 # ============================================================
 
-# Load Balancer -> APPs (a VCN-DMZ chega pelo LPG, entao a origem e o CIDR da sub-rede do LB)
+# Load Balancer -> APPs (Apenas o LB chega no SRV APP)
 resource "oci_core_network_security_group_security_rule" "app_http_from_lb" {
   for_each = local.app_nsg_ids
 
   network_security_group_id = each.value
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
-  source_type               = "CIDR_BLOCK"
+  source                    = oci_core_network_security_group.nsg_lb.id
+  source_type               = "NETWORK_SECURITY_GROUP"
   description               = "HTTP e health check vindos do Load Balancer"
-
-  tcp_options {
-    destination_port_range {
-      min = 80
-      max = 80
-    }
-  }
-}
-
-# Load Balancer -> APPs: aplicacao Flask na porta 8080
-resource "oci_core_network_security_group_security_rule" "app_flask_from_lb" {
-  for_each = local.app_nsg_ids
-
-  network_security_group_id = each.value
-  direction                 = "INGRESS"
-  protocol                  = "6"
-  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
-  source_type               = "CIDR_BLOCK"
-  description               = "Aplicacao Flask e health check vindos do Load Balancer"
 
   tcp_options {
     destination_port_range {
@@ -520,27 +499,7 @@ resource "oci_core_network_security_group_security_rule" "app_flask_from_lb" {
   }
 }
 
-# Load Balancer -> APPs: HTTPS (a origem e o CIDR da sub-rede do LB)
-resource "oci_core_network_security_group_security_rule" "app_https_from_lb" {
-  for_each = local.app_nsg_ids
-
-  network_security_group_id = each.value
-  direction                 = "INGRESS"
-  protocol                  = "6"
-  source                    = oci_core_subnet.subnet_dmz_public.cidr_block
-  source_type               = "CIDR_BLOCK"
-  description               = "HTTPS vindo do Load Balancer"
-
-  tcp_options {
-    destination_port_range {
-      min = 443
-      max = 443
-    }
-  }
-}
-
-
-# Zabbix (IRISCORE) -> agentes nas APPs
+# Zabbix (IRISCORE) -> agente2 no SRV APPs
 resource "oci_core_network_security_group_security_rule" "app_zabbix_agent_from_iriscore" {
   for_each = local.app_nsg_ids
 
@@ -566,31 +525,13 @@ resource "oci_core_network_security_group_security_rule" "app_zabbix_agent_from_
 # REGRAS - NSG-SRV-IRIS-01
 # ============================================================
 
-# JumpServer -> Grafana
-resource "oci_core_network_security_group_security_rule" "grafana_web_from_jumpserver" {
-  network_security_group_id = oci_core_network_security_group.nsg_iris_01.id
-  direction                 = "INGRESS"
-  protocol                  = "6"
-  source                    = oci_core_network_security_group.nsg_jumpserver.id
-  source_type               = "NETWORK_SECURITY_GROUP"
-  description               = "Interface do Grafana acessivel pelo JumpServer"
-
-  tcp_options {
-    destination_port_range {
-      min = 3000
-      max = 3000
-    }
-  }
-}
-
-
 # NPM (DMZ) -> Grafana (IRIS): HTTP
 resource "oci_core_network_security_group_security_rule" "iris_http_from_npm" {
   network_security_group_id = oci_core_network_security_group.nsg_iris_01.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = "10.10.1.50/32"
-  source_type               = "CIDR_BLOCK"
+  source                    = oci_core_network_security_group.nsg_npm.id
+  source_type               = "NETWORK_SECURITY_GROUP"
   description               = "Acesso a interface do Grafana pelo NPM"
 
   tcp_options {
