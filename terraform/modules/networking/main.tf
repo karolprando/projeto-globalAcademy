@@ -526,8 +526,8 @@ resource "oci_core_network_security_group_security_rule" "ping_from_iriscore" {
   direction                 = "INGRESS"
   protocol                  = "1"
 
-  source                    = oci_core_network_security_group.nsg_iriscore_01.id
-  source_type               = "NETWORK_SECURITY_GROUP"
+  source      = oci_core_network_security_group.nsg_iriscore_01.id
+  source_type = "NETWORK_SECURITY_GROUP"
 
   description = "ICMP Ping vindo do SRV-IRISCORE-01"
 
