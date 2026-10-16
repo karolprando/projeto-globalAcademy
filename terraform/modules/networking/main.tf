@@ -487,8 +487,8 @@ resource "oci_core_network_security_group_security_rule" "app_http_from_lb" {
   network_security_group_id = each.value
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = oci_core_network_security_group.nsg_lb.id
-  source_type               = "NETWORK_SECURITY_GROUP"
+  source                    = "10.10.1.0/24"
+  source_type               = "CIDR_BLOCK"
   description               = "HTTP e health check vindos do Load Balancer"
 
   tcp_options {
@@ -530,8 +530,8 @@ resource "oci_core_network_security_group_security_rule" "iris_http_from_npm" {
   network_security_group_id = oci_core_network_security_group.nsg_iris_01.id
   direction                 = "INGRESS"
   protocol                  = "6"
-  source                    = oci_core_network_security_group.nsg_npm.id
-  source_type               = "NETWORK_SECURITY_GROUP"
+  source                    = "10.10.1.50/32"
+  source_type               = "CIDR_BLOCK"
   description               = "Acesso a interface do Grafana pelo NPM"
 
   tcp_options {
