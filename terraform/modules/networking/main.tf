@@ -518,6 +518,25 @@ resource "oci_core_network_security_group_security_rule" "app_zabbix_agent_from_
   }
 }
 
+# Zabbix (IRISCORE) -> APPs: ICMP Ping
+resource "oci_core_network_security_group_security_rule" "ping_from_iriscore" {
+  for_each = local.app_nsg_ids
+
+  network_security_group_id = each.value
+  direction                 = "INGRESS"
+  protocol                  = "1"
+
+  source                    = oci_core_network_security_group.nsg_iriscore_01.id
+  source_type               = "NETWORK_SECURITY_GROUP"
+
+  description = "ICMP Ping vindo do SRV-IRISCORE-01"
+
+  icmp_options {
+    type = 8
+    code = 0
+  }
+}
+
 ## -- END -- NSG-SRV-APP-01 / NSG-SRV-APP-02 -- ##
 
 
