@@ -1,0 +1,62 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+  OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+  OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+  OCI_REGION: ${{ secrets.OCI_REGION }}
+
+jobs:
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+
+    environment:
+      name: PROD
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      TF_VAR_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+      TF_VAR_user_ocid: ${{ secrets.OCI_USER_OCID }}
+      TF_VAR_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+      TF_VAR_region: ${{ secrets.OCI_REGION }}
+      TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+      TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      TF_VAR_origin_certificate: ${{ secrets.TF_VAR_origin_certificate }}
+      TF_VAR_origin_private_key: ${{ secrets.TF_VAR_origin_private_key }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure OCI private key
+        env:
+          OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
+        run: |
+          printf '%s\n' "$OCI_PRIVATE_KEY" > "$RUNNER_TEMP/oci_api_key.pem"
+          chmod 600 "$RUNNER_TEMP/oci_api_key.pem"
+          echo "TF_VAR_private_key_path=$RUNNER_TEMP/oci_api_key.pem" >> "$GITHUB_ENV"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="tenancy_ocid=$OCI_TENANCY_OCID" \
+            -backend-config="user_ocid=$OCI_USER_OCID" \
+            -backend-config="fingerprint=$OCI_FINGERPRINT" \
+            -backend-config="region=$OCI_REGION" \
+            -backend-config="private_key_path=$RUNNER_TEMP/oci_api_key.pem"
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
